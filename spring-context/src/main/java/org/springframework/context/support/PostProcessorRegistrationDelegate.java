@@ -60,6 +60,7 @@ final class PostProcessorRegistrationDelegate {
 
 		if (beanFactory instanceof BeanDefinitionRegistry) {
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
+			// 常规的
 			List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();
 			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
 
@@ -185,6 +186,13 @@ final class PostProcessorRegistrationDelegate {
 		beanFactory.clearMetadataCache();
 	}
 
+	/**
+	 * 注册PriorityOrdered类型的BeanPostProcessor
+	 * 注册Ordered类型的BeanPostProcessor
+	 * 注册普通的BeanPostProcessor
+	 * 注册MergedBeanDefinitionPostProcessor
+	 * 注册ApplicationListenerDetector
+	 */
 	public static void registerBeanPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, AbstractApplicationContext applicationContext) {
 

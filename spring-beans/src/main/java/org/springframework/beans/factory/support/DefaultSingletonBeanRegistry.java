@@ -71,6 +71,7 @@ import org.springframework.util.StringUtils;
 public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements SingletonBeanRegistry {
 
 	/** Cache of singleton objects: bean name to bean instance. */
+	// 缓存单例Bean
 	private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
 
 	/** Cache of singleton factories: bean name to ObjectFactory. */
@@ -496,6 +497,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 			this.singletonsCurrentlyInDestruction = true;
 		}
 
+		// 回调DisposableBean#destroy
 		String[] disposableBeanNames;
 		synchronized (this.disposableBeans) {
 			disposableBeanNames = StringUtils.toStringArray(this.disposableBeans.keySet());
