@@ -847,7 +847,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected void registerListeners() {
 		// Register statically specified listeners first.
-		// 添加当前应用上下文锁关联的ApplicationListener对象
+		// 添加当前应用上下文所关联的ApplicationListener对象
 		for (ApplicationListener<?> listener : getApplicationListeners()) {
 			getApplicationEventMulticaster().addApplicationListener(listener);
 		}
