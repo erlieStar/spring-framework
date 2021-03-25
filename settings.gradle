@@ -38,4 +38,5 @@ rootProject.children.each {project ->
 }
 include 'learning-spring'
 include 'learning-springmvc'
+include 'learning-springmvc-javaconfig'
 
