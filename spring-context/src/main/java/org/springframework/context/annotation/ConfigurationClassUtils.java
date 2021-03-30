@@ -89,6 +89,8 @@ abstract class ConfigurationClassUtils {
 			return false;
 		}
 
+		// 通过注解注入的bd都是AnnotatedGenericBeanDefinition，实现了AnnotatedBeanDefinition
+		// spring内部的bd是RootBeanDefinition，实现了AbstractBeanDefinition
 		AnnotationMetadata metadata;
 		if (beanDef instanceof AnnotatedBeanDefinition &&
 				className.equals(((AnnotatedBeanDefinition) beanDef).getMetadata().getClassName())) {
@@ -121,6 +123,11 @@ abstract class ConfigurationClassUtils {
 			}
 		}
 
+		// 从类中取出 @Configuration 注解
+		// 如果类中有 @Configuration 注解并且 proxyBeanMethods 属性为 false，则标记配置类为FULL模式 @Configuration(proxyBeanMethods=false)
+		// 如果类中有 @Configuration 注解并且 proxyBeanMethods 属性为 true，则标记配置类为Lite模式
+		// 如果类中没有 @Configuration，但有 @Bean,@Component,@ComponentScan,@Import,@ImportResource 这些注解，也标记为Lite模式
+		// 如果是实现了 Configuration 接口或者是以上注解都没有，则直接跳过，不是配置类不解析
 		Map<String, Object> config = metadata.getAnnotationAttributes(Configuration.class.getName());
 		if (config != null && !Boolean.FALSE.equals(config.get("proxyBeanMethods"))) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
@@ -155,6 +162,8 @@ abstract class ConfigurationClassUtils {
 		}
 
 		// Any of the typical annotations found?
+		// 只要类上加了@Component，@ComponentScan，@Import，@ImportResource
+		// 则认为这是一个配置类
 		for (String indicator : candidateIndicators) {
 			if (metadata.isAnnotated(indicator)) {
 				return true;
@@ -162,6 +171,7 @@ abstract class ConfigurationClassUtils {
 		}
 
 		// Finally, let's look for @Bean methods...
+		// 查找有没有加了@Bean注解的方法
 		try {
 			return metadata.hasAnnotatedMethods(Bean.class.getName());
 		}
