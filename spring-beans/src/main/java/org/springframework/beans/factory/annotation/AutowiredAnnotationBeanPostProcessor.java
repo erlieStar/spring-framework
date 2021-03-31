@@ -265,6 +265,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					Class<?> targetClass = beanClass;
 					do {
 						ReflectionUtils.doWithLocalMethods(targetClass, method -> {
+							// 获取Lookup注解信息
 							Lookup lookup = method.getAnnotation(Lookup.class);
 							if (lookup != null) {
 								Assert.state(this.beanFactory != null, "No BeanFactory available");
@@ -309,15 +310,21 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 								"] from ClassLoader [" + beanClass.getClassLoader() + "] failed", ex);
 					}
 					List<Constructor<?>> candidates = new ArrayList<>(rawCandidates.length);
+					// 必须注入构造方法集合
 					Constructor<?> requiredConstructor = null;
+					// 默认构造方法集合
 					Constructor<?> defaultConstructor = null;
+					// 主构造方法（Kotlin 语言特性），如果非 Kotlin 则方法直接返回 null
 					Constructor<?> primaryConstructor = BeanUtils.findPrimaryConstructor(beanClass);
 					int nonSyntheticConstructors = 0;
+					// 遍历所有的构造函数
 					for (Constructor<?> candidate : rawCandidates) {
+						// 判断是否存在内部类访问（isSynthetic 这个是个很冷门的知识点）
 						if (!candidate.isSynthetic()) {
 							nonSyntheticConstructors++;
 						}
 						else if (primaryConstructor != null) {
+							// 一般Java类primaryConstructor都为Null
 							continue;
 						}
 						MergedAnnotation<?> ann = findAutowiredAnnotation(candidate);
@@ -325,6 +332,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 							Class<?> userClass = ClassUtils.getUserClass(beanClass);
 							if (userClass != beanClass) {
 								try {
+									// 给定类的父类构造方法
 									Constructor<?> superCtor =
 											userClass.getDeclaredConstructor(candidate.getParameterTypes());
 									ann = findAutowiredAnnotation(superCtor);
@@ -357,9 +365,12 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 							defaultConstructor = candidate;
 						}
 					}
+					// 可选构造函数不为空
 					if (!candidates.isEmpty()) {
 						// Add default constructor to list of optional constructors, as fallback.
+						// 不存在自动注入的构造函数
 						if (requiredConstructor == null) {
+							// 如果存在默认构造函数则将默认构造函数作为备选添加到可选构造函数列表中
 							if (defaultConstructor != null) {
 								candidates.add(defaultConstructor);
 							}
@@ -373,6 +384,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 						candidateConstructors = candidates.toArray(new Constructor<?>[0]);
 					}
 					else if (rawCandidates.length == 1 && rawCandidates[0].getParameterCount() > 0) {
+						// 只有一个有参构造函数
 						candidateConstructors = new Constructor<?>[] {rawCandidates[0]};
 					}
 					else if (nonSyntheticConstructors == 2 && primaryConstructor != null &&
@@ -383,6 +395,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 						candidateConstructors = new Constructor<?>[] {primaryConstructor};
 					}
 					else {
+						// 全不匹配创建空集合
 						candidateConstructors = new Constructor<?>[0];
 					}
 					this.candidateConstructorsCache.put(beanClass, candidateConstructors);
@@ -666,6 +679,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 				}
 			}
 			if (value != null) {
+				// 通过java反射为对象赋值
 				ReflectionUtils.makeAccessible(field);
 				field.set(bean, value);
 			}
