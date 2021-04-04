@@ -125,9 +125,12 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
+		// 参数有RequestParam注解
 		if (parameter.hasParameterAnnotation(RequestParam.class)) {
+			// 参数类型是map
 			if (Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParameterType())) {
 				RequestParam requestParam = parameter.getParameterAnnotation(RequestParam.class);
+				// 注解不为null，且name属性存在，则支持
 				return (requestParam != null && StringUtils.hasText(requestParam.name()));
 			}
 			else {
